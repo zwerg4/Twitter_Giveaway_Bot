@@ -26,11 +26,17 @@ def get_relevant_tweets(keyword, date):
     real_relevant_tweets = []
     recent_tweets = [tweet for tweet in tweepy.Cursor(api.search, q=keyword, since=date).items(5) if tweet not in found_tweets and tweet.text.lower()[0:4] != "rt @" and "congratulations" not in tweet.text.lower() and "congrats" not in tweet.text.lower()]
 
+    print("Got " + str(len(recent_tweets)) + " recent tweets")
     for twt in recent_tweets:
         for kw in config.keywords:
             if kw in twt.text.lower():
                 real_relevant_tweets.append(twt)
-                
+
+    print("Filtered out " + str(len(real_relevant_tweets)) + " relevant tweets")
+
+    #for i in real_relevant_tweets:
+      #  print("Text : " + str(i))
+
     return real_relevant_tweets
 
 def get_tweets_from_user(twitter_handle):
@@ -64,9 +70,12 @@ if __name__ == "__main__":
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth, wait_on_rate_limit=True)
+
+    print("tweepy auth seems to work!")
     
     while True:
         measured_date = str(datetime.datetime.today())[0:8] + str(int(str(datetime.datetime.today())[8:10]) - 5)
+        print("measured date: " + str(measured_date))
         counter, follow_ct, like_ct, rt_ct, reply_ct = 0, 0, 0, 0, 0
         
         try:
@@ -75,7 +84,7 @@ if __name__ == "__main__":
             print("\n\nError fetching tweets. Your account may be temporarily limited. Log into your account, remove limitations, and retry.\n\n")
             raise SystemExit
 
-        user_tweets = np.array([get_tweets_from_user(handle) for handle in config.account_names])
+        #user_tweets = np.array([get_tweets_from_user(handle) for handle in config.account_names])
         
         filtered_keyword_tweets = []
         filtered_user_tweets = []
@@ -84,9 +93,9 @@ if __name__ == "__main__":
             for twt in list_:
                 filtered_keyword_tweets.append(twt)
                 
-        for list_ in user_tweets:
-            for twt in list_:
-                filtered_user_tweets.append(twt)
+       # for list_ in user_tweets:
+         #   for twt in list_:
+         #       filtered_user_tweets.append(twt)
         
         filtered_keyword_tweets = np.array(filtered_keyword_tweets)
         filtered_user_tweets = np.array(filtered_user_tweets)
